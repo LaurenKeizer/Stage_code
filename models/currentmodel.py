@@ -89,7 +89,7 @@ class Barrel_PC:
         'VT' : -63 * b2.mV}
 
         self.namespace = namespace
-        return names
+
 
     def getNeurongroup(self):
         return self.neuron
@@ -131,8 +131,8 @@ class Barrel_IN:
         # Model the neuron with differential equations
         eqs = '''
         # Activation gates Na channel
-            m = 1. / (1. + exp(-(v - Vh) / k)) : 1
-            Vh = 3.223725 * k - 62.615488*mV : volt
+            m = 1. / (1. + exp(-(v - Vh) / ik)) : 1
+            Vh = 3.223725 * ik - 62.615488*mV : volt
             
         # Inactivation gates Na channel
             dh/dt = 5. * (alpha_h * (1 - h)- beta_h * h) : 1

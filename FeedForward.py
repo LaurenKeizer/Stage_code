@@ -36,9 +36,8 @@ N_runs = 1
 PC_i = 35
 IN_i = 11
 
-
-
 #getting the input
+
 [input_theory, dynamic_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, tau_PC, factor_ron_roff, mean_firing_rate_PC, sampling_rate, duration_PC)
 inj_input = scale_input_theory(input_theory, 'current', 0, 18, dt)
 
