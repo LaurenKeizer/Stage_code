@@ -116,16 +116,19 @@ class Barrel_IN:
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
 
-    def __init__(self, dt = 0.5):
+    def __init__(self, dt = 0.5, input = True):
         self.dt = dt
         self.stored = False
         self.create_namespace()
         self.make_model()
-
+        self.input = input
 
     def make_model(self):
         # Determine the simulation
-        eqs_input = '''I_inj = inj_input(t) : amp'''
+        if input:
+            eqs_input = '''I_inj = inj_input(t) : amp'''
+        else:
+            eqs_input = '''I_inj = 0 : amp'''
 
 
         # Model the neuron with differential equations
