@@ -31,17 +31,18 @@ class Barrel_PC:
 
     '''
 
-    def __init__(self, dt = 0.5):
+    def __init__(self, dt = 0.5, amount = 2):
         self.dt = dt
         self.stored = False
         self.create_namespace()
+        self.amount = amount
         self.make_model()
+
 
     def make_model(self):
 
         #Setting the input
         eqs_input = '''I_inj = inj_input(t) : amp'''
-        tracking = ['v', 'I_inj']
 
         # Model the neuron with differential equations
         eqs = '''
@@ -61,7 +62,7 @@ class Barrel_PC:
             '''
 
         # Neuron & parameter initialization
-        neuron = b2.NeuronGroup(1, model=eqs + eqs_input, method='exponential_euler',
+        neuron = b2.NeuronGroup(amount, model=eqs + eqs_input, method='exponential_euler',
                                 threshold='m > 0.5', refractory=2 * b2.ms, reset=None, dt=self.dt * b2.ms,
                                 namespace=self.namespace)
         neuron.v = -65 * b2.mV
@@ -116,7 +117,7 @@ class Barrel_IN:
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
 
-    def __init__(self, dt = 0.5, input = True):
+    def __init__(self, dt = 0.5, input = True, duplicate = False):
         self.dt = dt
         self.stored = False
         self.create_namespace()
