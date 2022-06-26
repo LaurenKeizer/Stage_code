@@ -69,16 +69,14 @@ class Barrel_PC:
         self.neuron = neuron
 
     def create_namespace(self):
-        parameters = np.loadtxt('models/parameters/PC_parameters.csv', delimiter=',')
-        Ni = np.random.randint(np.shape(parameters)[1])
         area = 20000 * b2.umetre ** 2
 
         namespace = {'area' : 20000 * b2.umetre ** 2,
                      'param': np.log(10),
-        'Cm' : parameters[2][Ni] * b2.farad / area * b2.cm ** 2,
-        'gL' : parameters[0][Ni] * b2.siemens / area * b2.cm ** 2,
-        'gNa' : parameters[3][Ni] * b2.siemens / area * b2.cm ** 2,
-        'gK' : parameters[1][Ni] * b2.siemens / area * b2.cm ** 2,
+        'Cm' : 203.94 * b2.pfarad / area * b2.cm ** 2,
+        'gL' : 18.92 * b2.nsiemens / area * b2.cm ** 2,
+        'gNa' : 92.22* b2.usiemens / area * b2.cm ** 2,
+        'gK' : 57.56 * b2.usiemens / area * b2.cm ** 2,
         'EL' : -65 * b2.mV,
         'ENa' : 50 * b2.mV,
         'EK' : -90 * b2.mV,
@@ -117,16 +115,16 @@ class Barrel_IN:
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
 
-    def __init__(self, dt = 0.5, input = True, duplicate = False):
+    def __init__(self, dt = 0.5, inpt = True, duplicate = False):
         self.dt = dt
         self.stored = False
         self.create_namespace()
         self.make_model()
-        self.input = input
+        self.inpt = inpt
 
     def make_model(self):
         # Determine the simulation
-        if input:
+        if inpt:
             eqs_input = '''I_inj = inj_input(t) : amp'''
         else:
             eqs_input = '''I_inj = 0 : amp'''
@@ -171,17 +169,16 @@ class Barrel_IN:
         self.neuron = neuron
 
     def create_namespace(self):
-        parameters = np.loadtxt('models/parameters/IN_parameters.csv', delimiter=',')
-        Ni = np.random.randint(np.shape(parameters)[1])
+
         area = 20000 * b2.umetre ** 2
 
         namespace = {'area' :  20000 * b2.umetre ** 2,
                      'param': np.log(10),
-        'iCm' : parameters[2][Ni] * b2.farad / area * b2.cm ** 2,
-        'igL' : parameters[0][Ni] * b2.siemens / area * b2.cm ** 2,
-        'igNa' : parameters[3][Ni] * b2.siemens / area * b2.cm ** 2,
-        'igK' : parameters[1][Ni] * b2.siemens / area * b2.cm ** 2,
-        'igK3' : parameters[5][Ni] * b2.siemens / area * b2.cm ** 2,
+        'iCm' : 380.02 * b2.pfarad / area * b2.cm ** 2,
+        'igL' : 4.60* b2.nsiemens / area * b2.cm ** 2,
+        'igNa' : 107.52* b2.usiemens / area * b2.cm ** 2,
+        'igK' :  50.54 * b2.usiemens / area * b2.cm ** 2,
+        'igK3' : 3.85 * b2.msiemens / area * b2.cm ** 2,
         'iEL' : -65 * b2.mV,
         'iENa' : 50 * b2.mV,
         'iEK' : -90 * b2.mV,
