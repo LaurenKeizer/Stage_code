@@ -37,21 +37,17 @@ PC_i = 35
 IN_i = 11
 
 #getting the input
-
-[input_theory, dynamic_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, tau_PC, factor_ron_roff, mean_firing_rate_PC, sampling_rate, duration_PC)
-inj_input = scale_input_theory(input_theory, 'current', 0, 18, dt)
+def get_input():
+    [input_theory, dynamic_theory, hidden_state] = make_dynamic_experiments(qon_qoff_type, baseline, tau_PC, factor_ron_roff, mean_firing_rate_PC, sampling_rate, duration_PC)
+    inj_input = scale_input_theory(input_theory, 'current', 0, 18, dt)
+    return inj_input
 
 #Making the PC cells
+inj_input = get_input()
 
-PC = Barrel_PC(dt=dt)
-IN = Barrel_IN(dt=dt)
-
-PC.getNeurongroup()
-IN.getNeurongroup()
-
-syn = Synapses(IN, PC, on_pre='''v_post += v''')
-syn.w = 0.3
-syn.connect()
+def FF():
+    PC = Barrel_PC(dt=dt)
+    IN = Barrel_IN(dt=dt)
 
 
 #IN = current_IN.getNeurongroup()

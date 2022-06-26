@@ -31,17 +31,15 @@ class Barrel_PC:
 
     '''
 
-    def __init__(self, dt = 0.5, amount = 1):
+    def __init__(self, dt=0.5, amount=1):
         self.dt = dt
         self.stored = False
         self.create_namespace()
         self.amount = amount
         self.make_model()
 
-
     def make_model(self):
-
-        #Setting the input
+        # Setting the input
         eqs_input = '''I_inj = inj_input(t) : amp'''
 
         # Model the neuron with differential equations
@@ -62,7 +60,7 @@ class Barrel_PC:
             '''
 
         # Neuron & parameter initialization
-        neuron = b2.NeuronGroup(self.amount, model=eqs + eqs_input, method='exponential_euler',
+        neuron = b2.NeuronGroup(amount, model=eqs + eqs_input, method='exponential_euler',
                                 threshold='m > 0.5', refractory=2 * b2.ms, reset=None, dt=self.dt * b2.ms,
                                 namespace=self.namespace)
         neuron.v = -65 * b2.mV
@@ -73,24 +71,23 @@ class Barrel_PC:
         Ni = np.random.randint(np.shape(parameters)[1])
         area = 20000 * b2.umetre ** 2
 
-        namespace = {'area' : 20000 * b2.umetre ** 2,
+        namespace = {'area': 20000 * b2.umetre ** 2,
                      'param': np.log(10),
-        'Cm' : parameters[2][Ni] * b2.farad / area * b2.cm ** 2,
-        'gL' : parameters[0][Ni] * b2.siemens / area * b2.cm ** 2,
-        'gNa' : parameters[3][Ni] * b2.siemens / area * b2.cm ** 2,
-        'gK' : parameters[1][Ni] * b2.siemens / area * b2.cm ** 2,
-        'EL' : -65 * b2.mV,
-        'ENa' : 50 * b2.mV,
-        'EK' : -90 * b2.mV,
-        'Er_e' : 0 * b2.mV,
-        'Er_i' : -75 * b2.mV,
-        'k_m' : parameters[4][Ni] * b2.volt,
-        'k_h' : parameters[5][Ni] * b2.volt,
-        'Vh_h' : parameters[6][Ni] * b2.volt,
-        'VT' : -63 * b2.mV}
+                     'Cm': parameters[2][Ni] * b2.farad / area * b2.cm ** 2,
+                     'gL': parameters[0][Ni] * b2.siemens / area * b2.cm ** 2,
+                     'gNa': parameters[3][Ni] * b2.siemens / area * b2.cm ** 2,
+                     'gK': parameters[1][Ni] * b2.siemens / area * b2.cm ** 2,
+                     'EL': -65 * b2.mV,
+                     'ENa': 50 * b2.mV,
+                     'EK': -90 * b2.mV,
+                     'Er_e': 0 * b2.mV,
+                     'Er_i': -75 * b2.mV,
+                     'k_m': parameters[4][Ni] * b2.volt,
+                     'k_h': parameters[5][Ni] * b2.volt,
+                     'Vh_h': parameters[6][Ni] * b2.volt,
+                     'VT': -63 * b2.mV}
 
         self.namespace = namespace
-
 
     def getNeurongroup(self):
         return self.neuron
@@ -117,7 +114,7 @@ class Barrel_IN:
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
 
-    def __init__(self, dt = 0.5, input = True, duplicate = False):
+    def __init__(self, dt=0.5, input=True, duplicate=False):
         self.dt = dt
         self.stored = False
         self.create_namespace()
@@ -131,28 +128,27 @@ class Barrel_IN:
         else:
             eqs_input = '''I_inj = 0 : amp'''
 
-
         # Model the neuron with differential equations
         eqs = '''
         # Activation gates Na channel
             m = 1. / (1. + exp(-(v - Vh) / ik)) : 1
             Vh = 3.223725 * ik - 62.615488*mV : volt
-            
+
         # Inactivation gates Na channel
             dh/dt = 5. * (alpha_h * (1 - h)- beta_h * h) : 1
             alpha_h = 0.07 * exp(-(v + 58.*mV) / (20.*mV))/ms : Hz
             beta_h = 1. / (exp(-0.1/mV * (v + 28.*mV)) + 1.)/ms : Hz
         # Activation gates K channel
-            
+
             dn/dt = 5. * (alpha_n * (1. - n) - beta_n * n) : 1
             alpha_n = 0.01/mV * 10*mV / exprel(-(v + 34.*mV) / (10.*mV))/ms : Hz
             beta_n = 0.125 * exp(-(v + 44.*mV) / (80.*mV))/ms : Hz
-            
+
         # Activation gates K3.1 channel
             dn3/dt = alphan3 * (1. - n3) - betan3 * n3 : 1
             alphan3 = (1. / exp(((param * ((-0.029 * v + (1.9*mV))/mV)))))/ms : Hz
             betan3 = (1. / exp(((param * ((0.021 * v + (1.1*mV))/mV)))))/ms : Hz
-            
+
         # Currents
             I_leak = -igL * (v - iEL) : amp
             I_Na = -igNa * m**3 * h * (v - iENa) : amp
@@ -175,23 +171,22 @@ class Barrel_IN:
         Ni = np.random.randint(np.shape(parameters)[1])
         area = 20000 * b2.umetre ** 2
 
-        namespace = {'area' :  20000 * b2.umetre ** 2,
+        namespace = {'area': 20000 * b2.umetre ** 2,
                      'param': np.log(10),
-        'iCm' : parameters[2][Ni] * b2.farad / area * b2.cm ** 2,
-        'igL' : parameters[0][Ni] * b2.siemens / area * b2.cm ** 2,
-        'igNa' : parameters[3][Ni] * b2.siemens / area * b2.cm ** 2,
-        'igK' : parameters[1][Ni] * b2.siemens / area * b2.cm ** 2,
-        'igK3' : parameters[5][Ni] * b2.siemens / area * b2.cm ** 2,
-        'iEL' : -65 * b2.mV,
-        'iENa' : 50 * b2.mV,
-        'iEK' : -90 * b2.mV,
-        'iEr_e' : 0 * b2.mV,
-        'iEr_i' : -75 * b2.mV,
-        'ik' : parameters[4][Ni] * b2.volt}
+                     'iCm': parameters[2][Ni] * b2.farad / area * b2.cm ** 2,
+                     'igL': parameters[0][Ni] * b2.siemens / area * b2.cm ** 2,
+                     'igNa': parameters[3][Ni] * b2.siemens / area * b2.cm ** 2,
+                     'igK': parameters[1][Ni] * b2.siemens / area * b2.cm ** 2,
+                     'igK3': parameters[5][Ni] * b2.siemens / area * b2.cm ** 2,
+                     'iEL': -65 * b2.mV,
+                     'iENa': 50 * b2.mV,
+                     'iEK': -90 * b2.mV,
+                     'iEr_e': 0 * b2.mV,
+                     'iEr_i': -75 * b2.mV,
+                     'ik': parameters[4][Ni] * b2.volt}
 
         self.namespace = namespace
-        #should I do this?? or should it be in a return function
-
+        # should I do this?? or should it be in a return function
 
     def getNeurongroup(self):
         return self.neuron
