@@ -70,7 +70,9 @@ class Barrel_PC:
 
     def create_namespace(self):
         area = 20000 * b2.umetre ** 2
-
+        parameters = np.loadtxt('models/parameters/PC_parameters.csv', delimiter=',')
+        # Ni = np.random.randint(np.shape(parameters)[1])
+        Ni = 54
         namespace = {'area' : 20000 * b2.umetre ** 2,
                      'param': np.log(10),
         'Cm' : 203.94 * b2.pfarad / area * b2.cm ** 2,
@@ -115,16 +117,17 @@ class Barrel_IN:
         influence on neuronal parameters. (Unpublished bachelor's thesis)
     '''
 
-    def __init__(self, dt = 0.5, inpt = True, duplicate = False):
+    def __init__(self, dt=0.5, Input=True, duplicate = False):
         self.dt = dt
         self.stored = False
         self.create_namespace()
+        self.Input = Input
         self.make_model()
-        self.inpt = inpt
+
 
     def make_model(self):
         # Determine the simulation
-        if inpt:
+        if self.Input:
             eqs_input = '''I_inj = inj_input(t) : amp'''
         else:
             eqs_input = '''I_inj = 0 : amp'''
@@ -169,7 +172,9 @@ class Barrel_IN:
         self.neuron = neuron
 
     def create_namespace(self):
-
+        parameters = np.loadtxt('models/parameters/IN_parameters.csv', delimiter=',')
+        # Ni = np.random.randint(np.shape(parameters)[1])
+        Ni = 12
         area = 20000 * b2.umetre ** 2
 
         namespace = {'area' :  20000 * b2.umetre ** 2,

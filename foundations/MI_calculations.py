@@ -12,8 +12,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats, integrate
 
-
-def analyze_exp(ron, roff, x, input_theory, dt, theta, spiketrain):
+def analyze_exp(type,ron, roff, x, input_theory, dt, theta, spiketrain):
     ''' Analyzes the the hidden state and the input that was created by the ANN to
         create the Output dictionary.
         Equations 13 & 14
@@ -37,14 +36,15 @@ def analyze_exp(ron, roff, x, input_theory, dt, theta, spiketrain):
     '''
     Output = {}
     # Input
-    Hxx, Hxy, Output['MI_i'], L_i = calc_MI_input(ron, roff, input_theory, theta, x, dt)
+    Output['Type'] = type
+    Hxx, Hxy, Output['MI_i'], L_i = calc_MI_input(ron, roff, input_theory, theta, x , dt)
     Output['xhat_i'] = 1. / (1 + np.exp(-L_i))
-    Output['MSE_i'] = np.sum((x - Output['xhat_i']) ** 2)
+    Output['MSE_i'] = np.sum((x - Output['xhat_i'])**2)
 
     # Output
     _, _, Output['MI'], L, Output['qon'], Output['qoff'] = calc_MI_ideal(ron, roff, spiketrain, x, dt)
-    Output['xhatspikes'] = 1. / (1 + np.exp(-L))
-    Output['MSE'] = np.sum((x - Output['xhatspikes']) ** 2)
+    Output['xhatspikes'] = 1./(1 + np.exp(-L))
+    Output['MSE'] = np.sum((x - Output['xhatspikes'])**2)
 
     return pd.DataFrame.from_dict(Output, orient='index').T
 
@@ -61,7 +61,7 @@ def dLdt_input(L, ron, roff, I, theta):
 
 def dLdt_spikes(L, ron, roff, I, w, theta):
     'docstring'
-    dLdt = ron * (1. + np.exp(-L)) - roff * (1. + np.exp(L)) + w * I - theta
+    dLdt = ron * (1. + np.exp(-L)) - roff * (1. + np.exp(L)) + w*I - theta
 
     return dLdt
 
@@ -94,10 +94,10 @@ def calc_MI_input(ron, roff, I, theta, x, dt):
     '''
     # Integrate the posterior Log-likelihood
     L = np.empty(len(x))
-    L[0] = np.log(ron / roff)
+    L[0] = np.log(ron/roff)
     for i in range(len(x) - 1):
         L[i + 1] = L[i] + dLdt_input(L[i], ron, roff, I[i], theta) * dt
-        if abs(L[i + 1]) > 1000:
+        if abs(L[i+1]) > 1000:
             print('L diverges weights too large')
             break
 
@@ -121,20 +121,20 @@ def calc_MI_ideal(ron, roff, spiketrain, x, dt):
         print('no down spikes, inventing one')
         nspikesdown = 1
 
-    qon = nspikesup / (sum(x) * dt)
-    qoff = nspikesdown / ((len(x) - sum(x)) * dt)
-    w = np.log(qon / qoff)
-    theta = qon - qoff
+    qon = nspikesup / (sum(x)*dt)
+    qoff = nspikesdown / ((len(x) - sum(x))*dt)
+    w = np.log(qon/qoff)
+    theta = qon-qoff
     # print('w=', w, '; theta=', theta)
 
     ## Integrate L
-    I = spiketrain / dt
+    I = spiketrain/dt
     L = np.empty(np.shape(x))
-    L[0] = np.log(ron / roff)
+    L[0] = np.log(ron/roff)
 
     for nn in range(len(x) - 1):
-        L[nn + 1] = L[nn] + dLdt_spikes(L[nn], ron, roff, I[0][nn], w, theta) * dt
-        if abs(L[nn + 1]) > 1000:
+        L[nn+1] = L[nn] + dLdt_spikes(L[nn], ron, roff, I[0][nn], w, theta) * dt
+        if abs(L[nn+1]) > 1000:
             assert StopIteration('L diverges, weights too large')
 
     # Calculate MI
@@ -164,16 +164,16 @@ def reorder_x(x, ordervecs):
     ## TODO what does this piece of code do?
     xt1 = np.insert(x, 0, x[0])
     xt2 = np.append(x, x[-1])
-    xj = xt2 - xt1  # This is equal to xj[n] = x[n] - x[n-1]
-    njumpup = len(xj[xj == 1])
-    njumpdown = len(xj[xj == -1])
+    xj = xt2 - xt1 # This is equal to xj[n] = x[n] - x[n-1]
+    njumpup = len(xj[xj==1])
+    njumpdown = len(xj[xj==-1])
 
     ## Reorder
     if njumpup > 0 and njumpdown > 0:
         firstjump = np.argwhere(abs(xj) == 1).flatten()
         firstjump = firstjump[0]
-        revecsup = np.nan * np.empty((number_of_vectors, njumpup + 1, round(10 * timesteps / njumpup)))
-        revecsdown = np.nan * np.empty((number_of_vectors, njumpdown + 1, round(10 * timesteps / njumpdown)))
+        revecsup = np.nan * np.empty((number_of_vectors, njumpup+1, round(10*timesteps/njumpup)))
+        revecsdown = np.nan * np.empty((number_of_vectors, njumpdown+1, round(10*timesteps/njumpdown)))
         _, _, size3 = np.shape(revecsdown)
 
         if x[firstjump] == 1:
@@ -191,9 +191,9 @@ def reorder_x(x, ordervecs):
         tmaxup = 1
         tmaxdown = 1
 
-        for nn in range(firstjump + 1, timesteps):
+        for nn in range(firstjump+1, timesteps):
             try:
-                jump = x[nn] - x[nn - 1]
+                jump = x[nn] - x[nn-1]
             except:
                 raise AssertionError('size ordervecs not the same as size x')
 
@@ -215,7 +215,7 @@ def reorder_x(x, ordervecs):
                     raise AssertionError('Something went wrong: x not 0 or 1')
 
             elif jump == 1:
-                # Jump up
+                #Jump up
                 tt = 1
                 up = up + 1
                 if x[nn] == 1:
