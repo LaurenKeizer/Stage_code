@@ -130,7 +130,7 @@ class Barrel_IN:
         if self.Input:
             eqs_input = '''I_inj = inj_input(t) : amp'''
         else:
-            eqs_input = '''I_inj = 0 : amp'''
+            eqs_input = '''I_inj = 0*amp : amp'''
 
 
         # Model the neuron with differential equations

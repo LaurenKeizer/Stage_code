@@ -39,12 +39,12 @@ def analyze_exp(type,ron, roff, x, input_theory, dt, theta, spiketrain):
     Output['Type'] = type
     Hxx, Hxy, Output['MI_i'], L_i = calc_MI_input(ron, roff, input_theory, theta, x , dt)
     Output['xhat_i'] = 1. / (1 + np.exp(-L_i))
-    Output['MSE_i'] = np.sum((x - Output['xhat_i'])**2)
+    Output['MSE_i'] = 1/np.sum((x - Output['xhat_i'])**2)
 
     # Output
     _, _, Output['MI'], L, Output['qon'], Output['qoff'] = calc_MI_ideal(ron, roff, spiketrain, x, dt)
     Output['xhatspikes'] = 1./(1 + np.exp(-L))
-    Output['MSE'] = np.sum((x - Output['xhatspikes'])**2)
+    Output['MSE'] = 1/np.size(hidden_state) * np.sum((x - Output['xhatspikes'])**2)
 
     return pd.DataFrame.from_dict(Output, orient='index').T
 
