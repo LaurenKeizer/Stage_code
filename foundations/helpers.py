@@ -10,20 +10,18 @@ sys.path.insert(0, parent_dir)
 
 import numpy as np
 import brian2 as b2
-from models.models import Barrel_PC, Barrel_IN
 
 
-def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, duration, hidden_state, scale_list, dt,
+def scale_to_freq(neuron, input_theory, target, on_all_ratio, duration, hidden_state, scale_list, dt,
                   Ni=None):
     ''' Scales the theoretical input to an input that results in target firing frequence
         by running test simulations.
 
         INPUT
         neuron (Class): neuron model as found in models/models.py
-        input_theory (array or tuple): theoretical input that has to be scaled; (g_exc, g_inh) if dynamic
+        input_theory (array or tuple): theoretical input that has to be scaled;
         target (int): target frequency for the simulation
         on_all_ratio (float): how much more does the neuron need to fire during the ON state
-        clamp_type (str): 'current' or 'dynamic'
         duration (int): duration of the simulation in miliseconds
         hidden_state (array): binary array representing the hidden state
         scale_list (array): list of scales to try
@@ -39,24 +37,18 @@ def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, durati
             neuron.store()
     except:
         raise TypeError('Please insert a neuron class')
-    if clamp_type != 'current' and clamp_type != 'dynamic':
-        raise ValueError('ClampType must be \'current\' or \'dynamic\'')
-    if clamp_type == 'current':
-        if len(input_theory) != len(hidden_state):
-            raise AssertionError('Input and hidden state don\'t correspond')
-    elif clamp_type == 'dynamic':
-        if len(input_theory[0]) != len(hidden_state):
-            raise AssertionError('Input and hidden state don\'t correspond')
+    if len(input_theory) != len(hidden_state):
+        raise AssertionError('Input and hidden state don\'t correspond')
 
     freq_diff_list = []  # Containing the difference between target and actual frequency
-    freq_list = []  # Containing the actual frequencies
-    on_freq_list = []  # Containing the frequency during ON-state
+    freq_list = []       # Containing the actual frequencies
+    on_freq_list = []    # Containing the frequency during ON-state
 
     for idx, scale in enumerate(scale_list):
         neuron.restore()
 
         # Scale and run
-        inj = scale_input_theory(input_theory, clamp_type, 0, scale, dt)
+        inj = scale_input_theory(input_theory, 0, scale, dt)
         M, S = neuron.run(inj, duration, Ni)
 
         # Compare against frequency target
@@ -95,32 +87,23 @@ def scale_to_freq(neuron, input_theory, target, on_all_ratio, clamp_type, durati
     return scale_input_theory(input_theory, clamp_type, 0, scale_list[-1], dt)
 
 
-def scale_input_theory(input_theory, clamp_type, baseline, scale, dt):
-    ''' Scales the theoretical current or dynamic input with a scaling factor. An unit is also added
-        to the input uA for current and mS for dynamic input.
+def scale_input_theory(input_theory, baseline, scale, dt):
+    ''' Scales the theoretical current input with a scaling factor. An unit is also added
+        to the input uA for current.
 
         INPUT
-        input_theory (array or tuple): theoretical input that has to be scaled; (g_exc, g_inh) if dynamic
-        clamp_type (str): 'current' or 'dynamic'
-        baseline (float or tuple): baseline if dynamic (base_exc, base_inh) #NOTE Not fully implemented
+        input_theory (array or tuple): theoretical input that has to be scaled;
+        baseline (float or tuple):
         scale (float): scaling factor
         dt (float): time step of the simulation in milliseconds
 
         OUTPUT
         inj_input (brian2.TimedArray): the scaled input
     '''
-    if clamp_type == 'current':
-        baseline = np.ones_like(input_theory, dtype=float) * baseline
-        scaled_input = (baseline + input_theory * scale) * b2.uamp
-        inject_input = b2.TimedArray(scaled_input, dt=dt * b2.ms)
 
-    elif clamp_type == 'dynamic':
-        g_exc, g_inh = input_theory
-        g_inh = (baseline + g_inh * scale) * b2.mS
-        g_exc = (baseline + g_exc * scale) * b2.mS
-        g_exc = b2.TimedArray(g_exc, dt=dt * b2.ms)
-        g_inh = b2.TimedArray(g_inh, dt=dt * b2.ms)
-        inject_input = (g_exc, g_inh)
+    baseline = np.ones_like(input_theory, dtype=float) * baseline
+    scaled_input = (baseline + input_theory * scale) * b2.uamp
+    inject_input = b2.TimedArray(scaled_input, dt=dt * b2.ms)
 
     return inject_input
 

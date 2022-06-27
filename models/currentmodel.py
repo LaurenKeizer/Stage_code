@@ -16,7 +16,6 @@
 import brian2 as b2
 import numpy as np
 
-
 class Barrel_PC:
     ''' Hodgkin-Huxley model of a Pyramidal Cell in the rat barrel cortex.
 

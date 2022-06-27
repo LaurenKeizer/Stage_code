@@ -233,7 +233,7 @@ class Input():
 
         return xs
 
-    def markov_input(self, dynamic=False):
+    def markov_input(self):
         ''' Takes qon, qoff and hiddenstate and generates input.
             Optionally when dynamic is a dictinary of g0_values it
             generates a conductance over time based on the hidden state.
@@ -242,10 +242,8 @@ class Input():
         nt = self.length
         w = np.log(self.qon / self.qoff)
 
-        if dynamic:
-            ni = dynamic.keys()
-        else:
-            ni = range(len(self.qon))
+
+        ni = range(len(self.qon))
 
         # Make spike trains (implicit)
         stsum = np.zeros((nt, 1))
@@ -275,14 +273,8 @@ class Input():
             sttemp[xon] = np.transpose(sttempon)
             sttemp[xoff] = np.transpose(sttempoff)
 
-            if dynamic:
-                stsum = stsum + dynamic[k] * sttemp
-            else:
-                stsum = stsum + w[k] * sttemp
 
-                # #SanityCheck for individual spikes
-            # plt.plot(sttemp)
-            # plt.show()
+            stsum = stsum + w[k] * sttemp
 
         if self.kernel != None:
             stsum = np.convolve(stsum.flatten(), kernelf, mode='full')

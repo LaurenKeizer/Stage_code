@@ -24,8 +24,8 @@ sys.path.insert(0, parent_dir)
 
 import numpy as np
 import matplotlib.pyplot as plt
-from foundations.dynamic_clamp import get_g0
-from foundations.input import Input
+from foundations2.dynamic_clamp import get_g0
+from foundations2.input import Input
 
 
 def make_dynamic_experiments(qon_qoff_type, baseline, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration,

@@ -9,10 +9,6 @@
     Frontiers in Computational Neuroscience, 11(June), 49. doi:10.3389/FNCOM.2017.00049
     Please cite this reference when using this method.
 
-    Dynamic clamp adaptation is described in:
-    Schutte, M. and Zeldenrust, F. (2021) Increased neural information transfer for a conductance input:
-    a dynamic clamp approach to study information flow. Msc. University of Amsterdam. Available at: https://scripties.uba.uva.nl
-
     NOTE Make sure that you save the hidden state & input theory with the experiments, it is
     essential for the information calculation!
 '''
@@ -23,9 +19,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
 import numpy as np
-import matplotlib.pyplot as plt
-from foundations.dynamic_clamp import get_g0
-from foundations.input import Input
+from foundations2.input import Input
 
 
 def make_dynamic_experiments(qon_qoff_type, baseline, tau, factor_ron_roff, mean_firing_rate, sampling_rate, duration,
@@ -61,8 +55,6 @@ def make_dynamic_experiments(qon_qoff_type, baseline, tau, factor_ron_roff, mean
     stdq = alpha * mean_firing_rate
     ron = 1. / (tau * (1 + factor_ron_roff))
     roff = factor_ron_roff * ron
-    v_rest = -65
-    Er_exc, Er_inh = (0, -75)
 
     # Create input from artifical network
     input_bayes = Input()
@@ -94,30 +86,7 @@ def make_dynamic_experiments(qon_qoff_type, baseline, tau, factor_ron_roff, mean
     input_bayes.get_all()
     input_bayes.x = input_bayes.markov_hiddenstate()
 
-    # Generate exc and inh
-    g0_exc, g0_inh = get_g0(v_rest, input_bayes.w, Er_exc, Er_inh)
-    g_exc = input_bayes.markov_input(g0_exc)
-    g_inh = input_bayes.markov_input(g0_inh)
-    dynamic_theory = (g_exc, g_inh)
-
     # Generate input_current for comparison
     input_theory = input_bayes.markov_input()
 
-    # #SanityCheck for input (Vm=-40) and hiddenstate
-    # fig, axs = plt.subplots(2, figsize=(12,12))
-    # fig.suptitle('Dynamic Clamp conductances')
-
-    # for idx, val in enumerate(input_bayes.x):
-    #     if val == 1:
-    #         axs[0].axvline(idx, c='lightgray')
-    #         axs[1].axvline(idx, c='lightgray')
-
-    # axs[0].plot(g_exc, c='red')
-    # axs[0].set(ylabel='Exc. conductance [mS]')
-
-    # axs[1].plot(g_inh, c='blue')
-    # axs[1].set(ylabel='Inh. conductance [mS]')
-
-    # plt.show()
-
-    return [input_theory, dynamic_theory, input_bayes.x]
+    return [input_theory, input_bayes.x]
