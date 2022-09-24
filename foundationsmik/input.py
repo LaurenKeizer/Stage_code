@@ -9,8 +9,6 @@
     Please cite this reference when using this method.
 '''
 import numpy as np
-import matplotlib.pyplot as plt
-
 
 class Input():
     ''' Class that generates the input to the ANN (hidden state) and to the model neuron (input theory).
